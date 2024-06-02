@@ -1,7 +1,7 @@
 import fs, { read } from 'fs';
 import express from 'express';
 import cors from 'cors';
-import { encrypt, decrypt } from './enc.js';
+import { encrypt, decrypt, encryptInitEnc } from './enc.js';
 import bodyParser from 'body-parser';
 import multer from 'multer';
 import stream from 'stream';
@@ -48,5 +48,7 @@ app.post('/decrypt', upload.single('file'), (req, res) => {
     res.send(decrypted);
 });
 
+
+app.post('/getsaltandiv', (_, res) => res.send(encryptInitEnc("I'M ENCRYPTED!", 'password')))
 
 app.listen(PORT, () => console.log(`app listening on port ${PORT}`));

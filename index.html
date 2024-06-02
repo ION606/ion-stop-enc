@@ -11,7 +11,8 @@
             margin: 20px;
         }
 
-        form {
+        form,
+        #displform {
             max-width: 400px;
             margin: auto;
         }
@@ -67,8 +68,9 @@
 
         function togglePassword() {
             const passwordInput = document.getElementById('passwordInput');
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            const type = (passwordInput.getAttribute('type') === 'password') ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
+            document.querySelector('.view-password').innerText = (type === 'text') ? '🔒' : '👁️';
         }
 
         async function sendToServer() {
@@ -77,7 +79,7 @@
             const isEncrypt = document.getElementById('encryptToggle').checked;
             const endpoint = isEncrypt ? '/encrypt' : '/decrypt';
 
-            const r = await fetch(endpoint, {
+            fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             })
@@ -98,16 +100,34 @@
                     alert("ERROR!");
                 });
         }
+
+        async function getSaltAndIv() {
+            const response = await fetch('/getsaltandiv', { method: 'POST' });
+            const siv = await response.json();
+            const el = document.querySelector('#salivdisp');
+            el.innerHTML = `<code>IV: ${siv.iv}</code><br><code>Salt: ${siv.salt}</code>`;
+        }
     </script>
 </head>
 
 <body>
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h1 style="margin-bottom: 10px;">A Simple File/Text Encryptor</h1>
+        <h2 style="margin-top: 5px;">Created by ION606</h2>
+    </div>
+
     <form id="encryptDecryptForm">
+        <hr>
         <label for="fileInput">File</label>
         <input type="file" id="fileInput" name="file">
 
+        <h3>OR</h3>
+
         <label for="textInput">Text</label>
         <input type="text" id="textInput" name="text">
+
+        <br><br>
+        <hr>
 
         <label for="passwordInput">Password</label>
         <div class="password-container">
@@ -121,6 +141,14 @@
 
         <button type="submit">Submit</button>
     </form>
+
+    <div id="displform">
+        <button style="background-color: red; margin-bottom: 10px;" onclick="getSaltAndIv()">Get Example
+            Salt/IV</button>
+        <div id="salivdisp">
+
+        </div>
+    </div>
 </body>
 
 </html>
