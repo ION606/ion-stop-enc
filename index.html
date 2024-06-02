@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt/Decrypt File Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .view-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('encryptDecryptForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                sendToServer();
+            });
+        })
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+
+        async function sendToServer() {
+            const form = document.getElementById('encryptDecryptForm');
+            const formData = new FormData(form);
+            const isEncrypt = document.getElementById('encryptToggle').checked;
+            const endpoint = isEncrypt ? '/encrypt' : '/decrypt';
+
+            const r = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(async response => {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = response.headers.get('content-disposition').split('filename=')[1].split(';')[0]
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                })
+                .catch((error) => {
+                    console.error(error);
+                    alert("ERROR!");
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <form id="encryptDecryptForm">
+        <label for="fileInput">File</label>
+        <input type="file" id="fileInput" name="file">
+
+        <label for="textInput">Text</label>
+        <input type="text" id="textInput" name="text">
+
+        <label for="passwordInput">Password</label>
+        <div class="password-container">
+            <input type="password" id="passwordInput" name="password" required>
+            <span class="view-password" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <label for="encryptToggle">
+            <input type="checkbox" id="encryptToggle" name="encryptToggle" checked> Encrypt
+        </label>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+
+</html>
