@@ -9,9 +9,9 @@ function generateKey(password, salt) {
 
 // Function to encrypt a message
 export function encryptInitEnc(buffer, password) {
-    const salt = randomBytes(16); // Generate a new salt
+    const salt = randomBytes(16);
     const key = generateKey(password, salt);
-    const iv = randomBytes(16); // Initialization vector
+    const iv = randomBytes(16);
     const cipher = createCipheriv('aes-256-cbc', key, iv);
     let encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
     return {
