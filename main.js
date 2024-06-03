@@ -13,7 +13,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-const upload = multer({ storage: multer.memoryStorage() });
+app.use('/favicon.ico', express.static('favicon.ico'));
+
+const upload = multer({
+    storage: multer.memoryStorage(), limits: {
+        fileSize: 2147483648  // 2GB
+    }
+});
 
 
 app.get('/', (_, res) => res.sendFile('index.html', { root: '.' }));
